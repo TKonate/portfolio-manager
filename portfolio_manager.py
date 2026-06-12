@@ -1,8 +1,50 @@
 import argparse
 import re
 import unicodedata
+from pathlib import Path
 
 from templates import TEMPLATES
+
+
+CONTENT_FOLDERS = {
+    "project": "projects",
+    "lab": "labs",
+    "publication": "publications",
+    "reading": "reading",
+}
+
+
+def build_file_path(metadata, content_type, filename):
+    """Build the destination path for the Markdown file."""
+
+    portfolio_root = Path("portfolio")
+
+    folder_name = CONTENT_FOLDERS[content_type]
+
+    file_path = (
+        portfolio_root
+        / "content"
+        / metadata["domain"]
+        / metadata["subdomain"]
+        / folder_name
+        / filename
+    )
+
+    return file_path
+
+
+def create_markdown_file(file_path, markdown_content):
+    """Create a Markdown file, without overwriting an existing file."""
+
+    if file_path.exists():
+        print(f"Erreur : le fichier existe déjà : {file_path}")
+        return
+
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(markdown_content, encoding="utf-8")
+
+    print(f"Fichier créé : {file_path}")
+
 
 def slugify(title):
     """Convert a title into a safe filename slug."""
@@ -124,9 +166,12 @@ def main():
 
     markdown_content = generate_markdown_content(metadata, args.content_type)
 
+    file_path = build_file_path(metadata, args.content_type, filename)
+
     print()
-    print("Contenu Markdown généré :")
-    print(markdown_content)
+    print(f"Chemin du fichier : {file_path}")
+
+    create_markdown_file(file_path, markdown_content)
 
 
 if __name__ == "__main__":
