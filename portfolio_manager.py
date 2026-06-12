@@ -14,6 +14,14 @@ CONTENT_FOLDERS = {
 }
 
 
+VALID_DOMAINS = {
+    "technology": ["computer-science", "electronics"],
+    "security": ["cybersecurity", "osint"],
+    "society": ["political-science", "sociology"],
+    "interdisciplinary": ["general"],
+}
+
+
 def build_file_path(metadata, content_type, filename):
     """Build the destination path for the Markdown file."""
 
@@ -113,11 +121,11 @@ def generate_markdown_content(metadata, content_type):
 def ask_metadata():
     """Ask the user for the metadata needed to create a portfolio entry."""
 
-    title = input("Title: ")
-    domain = input("Domain: ")
-    subdomain = input("Subdomain: ")
-    tags = input("Tags, separated by commas: ")
-    date = input("Date: ")
+    title = input("Title: ").strip()
+    domain = input("Domain: ").strip().lower()
+    subdomain = input("Subdomain: ").strip().lower()
+    tags = input("Tags, separated by commas: ").strip()
+    date = input("Date: ").strip()
 
     return {
         "title": title,
@@ -126,6 +134,32 @@ def ask_metadata():
         "tags": tags,
         "date": date,
     }
+
+
+def validate_metadata(metadata):
+    """Validate user metadata before creating a file."""
+
+    if not metadata["title"]:
+        print("Erreur : le titre ne peut pas être vide.")
+        return False
+
+    if metadata["domain"] not in VALID_DOMAINS:
+        print(f"Erreur : domaine inconnu : {metadata['domain']}")
+        print("Domaines autorisés :")
+        for domain in VALID_DOMAINS:
+            print(f"- {domain}")
+        return False
+
+    valid_subdomains = VALID_DOMAINS[metadata["domain"]]
+
+    if metadata["subdomain"] not in valid_subdomains:
+        print(f"Erreur : sous-domaine invalide pour {metadata['domain']} : {metadata['subdomain']}")
+        print("Sous-domaines autorisés :")
+        for subdomain in valid_subdomains:
+            print(f"- {subdomain}")
+        return False
+
+    return True
 
 
 def main():
@@ -140,16 +174,25 @@ def main():
 
     parser.add_argument(
         "content_type",
-        help="Type de contenu à créer. Exemple : project, lab, publication, reading"
+        choices=CONTENT_FOLDERS.keys(),
+        help="Type de contenu à créer."
     )
 
     args = parser.parse_args()
+
+    if args.command != "new":
+        print(f"Erreur : commande inconnue : {args.command}")
+        print("Commande disponible : new")
+        return
 
     print(f"Commande demandée : {args.command}")
     print(f"Type de contenu : {args.content_type}")
     print()
 
     metadata = ask_metadata()
+
+    if not validate_metadata(metadata):
+        return
 
     print()
     print("Métadonnées récupérées :")
