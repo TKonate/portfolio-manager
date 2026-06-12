@@ -21,6 +21,41 @@ def slugify(title):
 
     return slug
 
+
+def parse_tags(tags_text):
+    """Convert a comma-separated tags string into a clean list of tags."""
+
+    tags = tags_text.split(",")
+
+    clean_tags = []
+    for tag in tags:
+        clean_tag = tag.strip()
+        if clean_tag:
+            clean_tags.append(clean_tag)
+
+    return clean_tags
+
+
+def generate_front_matter(metadata, content_type):
+    """Generate a YAML front matter block from metadata."""
+
+    tags = parse_tags(metadata["tags"])
+
+    front_matter = "---\n"
+    front_matter += f'title: "{metadata["title"]}"\n'
+    front_matter += f'type: "{content_type}"\n'
+    front_matter += f'date: {metadata["date"]}\n'
+    front_matter += "tags:\n"
+
+    for tag in tags:
+        front_matter += f"  - {tag}\n"
+
+    front_matter += 'status: "draft"\n'
+    front_matter += "---\n"
+
+    return front_matter
+
+
 def ask_metadata():
     """Ask the user for the metadata needed to create a portfolio entry."""
 
@@ -70,8 +105,16 @@ def main():
     print(f"Tags: {metadata['tags']}")
     print(f"Date: {metadata['date']}")
 
+
     filename = slugify(metadata["title"]) + ".md"
     print(f"Nom de fichier généré : {filename}")
+
+
+    front_matter = generate_front_matter(metadata, args.content_type)
+
+    print()
+    print("Front matter généré :")
+    print(front_matter)
 
 
 if __name__ == "__main__":
