@@ -1,5 +1,25 @@
 import argparse
+import re
+import unicodedata
 
+
+def slugify(title):
+    """Convert a title into a safe filename slug."""
+
+    # Convert accented characters to non-accented characters
+    normalized_title = unicodedata.normalize("NFKD", title)
+    ascii_title = normalized_title.encode("ascii", "ignore").decode("ascii")
+
+    # Convert to lowercase
+    slug = ascii_title.lower()
+
+    # Replace everything that is not a letter or number with a dash
+    slug = re.sub(r"[^a-z0-9]+", "-", slug)
+
+    # Remove leading and trailing dashes
+    slug = slug.strip("-")
+
+    return slug
 
 def ask_metadata():
     """Ask the user for the metadata needed to create a portfolio entry."""
@@ -49,6 +69,9 @@ def main():
     print(f"Subdomain: {metadata['subdomain']}")
     print(f"Tags: {metadata['tags']}")
     print(f"Date: {metadata['date']}")
+
+    filename = slugify(metadata["title"]) + ".md"
+    print(f"Nom de fichier généré : {filename}")
 
 
 if __name__ == "__main__":
