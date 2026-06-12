@@ -2,6 +2,7 @@ import argparse
 import re
 import unicodedata
 
+from templates import TEMPLATES
 
 def slugify(title):
     """Convert a title into a safe filename slug."""
@@ -54,6 +55,17 @@ def generate_front_matter(metadata, content_type):
     front_matter += "---\n"
 
     return front_matter
+
+
+def generate_markdown_content(metadata, content_type):
+    """Generate the full Markdown content using front matter and a template."""
+
+    front_matter = generate_front_matter(metadata, content_type)
+
+    template = TEMPLATES[content_type]
+    body = template.format(title=metadata["title"])
+
+    return front_matter + body
 
 
 def ask_metadata():
@@ -110,11 +122,11 @@ def main():
     print(f"Nom de fichier généré : {filename}")
 
 
-    front_matter = generate_front_matter(metadata, args.content_type)
+    markdown_content = generate_markdown_content(metadata, args.content_type)
 
     print()
-    print("Front matter généré :")
-    print(front_matter)
+    print("Contenu Markdown généré :")
+    print(markdown_content)
 
 
 if __name__ == "__main__":
