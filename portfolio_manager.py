@@ -19,6 +19,9 @@
 # python portfolio_manager.py new publication
 import argparse
 
+# json permet de lire les fichiers json
+import json
+
 # re permet d'utiliser des expressions régulières.
 # Ici, on s'en sert pour nettoyer le titre et créer un nom de fichier propre.
 import re
@@ -422,6 +425,55 @@ def create_markdown_file(file_path, markdown_content):
 
 
 #============================================
+# LECTURE DE LA CONFIGURATION
+#============================================
+
+def load_config():
+    """
+    Charge la configuration du projet depuis config.json.
+
+    Retour :
+    - config : dictionnaire contenant les paramètres du programme.
+    """
+
+    # Chemin du fichier de configuration.
+    config_path = Path("config.json")
+
+    # Si le fichier n'existe pas, on affiche une erreur claire.
+    if not config_path.exists():
+        print("Erreur : fichier config.json introuvable.")
+        print("Crée un fichier config.json avec un champ portfolio_root.")
+        return None
+
+    # Si le fichier existe mais qu'il est vide, on affiche une erreur claire.
+    if config_path.stat().st_size == 0:
+        print("Erreur : config.json est vide.")
+        print('Ajoute par exemple : { "portfolio_root": "../portfolio" }')
+        return None
+
+    # Lecture du fichier JSON.
+    config_text = config_path.read_text(encoding="utf-8")
+
+    try:
+        # Conversion du texte JSON en dictionnaire Python.
+        config = json.loads(config_text)
+
+    except json.JSONDecodeError:
+        print("Erreur : config.json n'est pas un JSON valide.")
+        print("Exemple attendu :")
+        print('{')
+        print('  "portfolio_root": "../portfolio"')
+        print('}')
+        return None
+
+    # Vérification de la présence du champ obligatoire.
+    if "portfolio_root" not in config:
+        print('Erreur : le champ "portfolio_root" est absent de config.json.')
+        return None
+
+    return config
+
+#============================================
 # PROGRAMME PRINCIPAL
 #============================================
 
@@ -470,6 +522,15 @@ def main():
 
     # Lecture des arguments du terminal.
     args = parser.parse_args()
+
+
+    config = load_config()
+
+    if config is None:
+        return
+
+    print(f"Portfolio configuré : {config['portfolio_root']}")
+
 
     #-----------------------------
     # 2. Vérification de la commande
