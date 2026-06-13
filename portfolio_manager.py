@@ -342,14 +342,12 @@ def generate_markdown_content(metadata, content_type):
 # CONSTRUCTION DU CHEMIN DU FICHIER
 #============================================
 
-def build_file_path(metadata, content_type, filename):
+def build_file_path(portfolio_root, metadata, content_type, filename):
     """
     Construit le chemin du fichier Markdown à créer.
 
-    Exemple :
-    portfolio/content/society/political-science/publications/mon-fichier.md
-
     Paramètres :
+    - portfolio_root : chemin vers le dossier racine du portfolio ;
     - metadata : informations saisies par l'utilisateur ;
     - content_type : type de contenu ;
     - filename : nom du fichier Markdown.
@@ -357,9 +355,6 @@ def build_file_path(metadata, content_type, filename):
     Retour :
     - file_path : chemin complet du fichier.
     """
-
-    # Pour l'instant, on crée les fichiers dans un dossier de test local.
-    portfolio_root = Path("portfolio")
 
     # On récupère le nom du dossier associé au type de contenu.
     folder_name = CONTENT_FOLDERS[content_type]
@@ -531,6 +526,7 @@ def main():
 
     print(f"Portfolio configuré : {config['portfolio_root']}")
 
+    portfolio_root = Path(config["portfolio_root"])
 
     #-----------------------------
     # 2. Vérification de la commande
@@ -585,6 +581,7 @@ def main():
     #-----------------------------
 
     file_path = build_file_path(
+        portfolio_root,
         metadata,
         args.content_type,
         filename
