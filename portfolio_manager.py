@@ -468,6 +468,45 @@ def load_config():
 
     return config
 
+
+#============================================
+# VALIDATION DU CHEMIN DU PORTFOLIO
+#============================================
+
+def validate_portfolio_root(portfolio_root):
+    """
+    Vérifie que le chemin du portfolio semble valide.
+
+    Un portfolio valide doit contenir un dossier content/.
+
+    Paramètre :
+    - portfolio_root : chemin vers le dossier racine du portfolio.
+
+    Retour :
+    - True si le chemin semble valide ;
+    - False sinon.
+    """
+
+    # Vérification de l'existence du dossier racine.
+    if not portfolio_root.exists():
+        print(f"Erreur : le dossier portfolio n'existe pas : {portfolio_root}")
+        return False
+
+    # Vérification que le chemin pointe bien vers un dossier.
+    if not portfolio_root.is_dir():
+        print(f"Erreur : ce chemin n'est pas un dossier : {portfolio_root}")
+        return False
+
+    # Vérification de la présence du dossier content/.
+    content_root = portfolio_root / "content"
+
+    if not content_root.exists():
+        print(f"Erreur : le dossier content/ est introuvable dans : {portfolio_root}")
+        print("Vérifie la valeur de portfolio_root dans config.json.")
+        return False
+
+    return True
+
 #============================================
 # PROGRAMME PRINCIPAL
 #============================================
@@ -524,9 +563,12 @@ def main():
     if config is None:
         return
 
+    portfolio_root = Path(config["portfolio_root"])
+    
     print(f"Portfolio configuré : {config['portfolio_root']}")
 
-    portfolio_root = Path(config["portfolio_root"])
+    if not validate_portfolio_root(portfolio_root):
+        return
 
     #-----------------------------
     # 2. Vérification de la commande
