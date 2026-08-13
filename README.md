@@ -41,48 +41,62 @@ portfolio/content/society/political-science/publications/populations-civiles-et-
 
 ## Types de contenus
 
-| Type | Dossier de destination | Exemple |
+| Type | Dossier | Exemple |
 |---|---|---|
 | `project` | `projects/` | Projet technique |
-| `lab` | `labs/` | Laboratoire / expérimentation |
-| `publication` | `publications/` | Article, essai, analyse |
+| `lab` | `labs/` | Laboratoire |
+| `publication` | `publications/` | Article |
 | `reading` | `reading/` | Note de lecture |
 
-## Structure du projet
+## Structure
 
 ```
 portfolio-manager/
-├── config.json              # Configuration (chemin du portfolio)
-├── portfolio_manager.py     # Point d'entrée CLI
-├── templates.py             # Templates Markdown par type
-├── .gitignore
-└── README.md
+├── .github/workflows/ci.yml
+├── config.json
+├── portfolio_manager.py
+├── pyproject.toml
+├── requirements.txt
+├── templates.py
+├── tests/
+├── LICENSE
+├── README.md
+└── ROADMAP.md
 ```
 
 ## Fonctionnalités
 
-- Génération automatique d'un nom de fichier (slug) à partir du titre
-- Front matter YAML complet (title, type, date, tags, status)
-- Templates Markdown adaptés à chaque type de contenu
-- Validation des domaines et sous-domaines
-- Création automatique des dossiers manquants
-- Protection contre l'écrasement des fichiers existants
-- Configuration via `config.json` (chemin du portfolio personnalisable)
+- Slug auto depuis le titre
+- Front matter YAML complet
+- Templates par type
+- Validation domaines/sous-domaines
+- Dossiers auto, protection écrasement
+- Config via config.json
+- Tests (pytest) + CI (3.10-3.13)
+- Packaging pyproject.toml
 
 ## Roadmap
 
 | Version | Fonctionnalités | Statut |
 |---|---|---|
-| V1 | Génération Markdown de base | ✅ Terminé |
-| V2 | Configuration via `config.json` | ✅ Terminé |
-| V3 | Prompts guidés et tags standards | ⏳ |
-| V4 | Métadonnées avancées par type de contenu | ⏳ |
-| V5 | Modification de fichiers existants | ⏳ |
-| V6 | Vérification de qualité | ⏳ |
-| V7 | Analyse de portfolio et tableau de bord | ⏳ |
-| V8 | Génération d'index Markdown | ⏳ |
-| V9 | Compatibilité Hugo / GitHub Pages | ⏳ |
+| V1 | Génération Markdown | ✅ |
+| V2 | Config config.json | ✅ |
+| V3 | Prompts guidés | ⏳ |
+| V4 | Métadonnées avancées | ⏳ |
+| V5 | Modification fichiers | ⏳ |
+| V6 | Vérification qualité | ⏳ |
+| V7 | Stats portfolio | ⏳ |
+| V8 | Index Markdown | ⏳ |
+| V9 | Hugo/GitHub Pages | ⏳ |
 | V10 | Interface graphique | 🔮 |
+
+## Développement
+
+```bash
+pytest -v
+ruff check .
+pip install -e .
+```
 
 ## Licence
 
