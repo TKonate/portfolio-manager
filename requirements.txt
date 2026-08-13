@@ -1,0 +1,2 @@
+# Portfolio Manager - Python standard library only
+# Aucune dépendance externe requise pour l'instant
