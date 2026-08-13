@@ -1,51 +1,31 @@
 # Portfolio Manager
 
-Portfolio Manager est un outil en ligne de commande écrit en Python.
+CLI Python pour générer des fiches Markdown structurées dans un portfolio.
 
-Il permet de créer automatiquement des fichiers Markdown structurés pour organiser un portfolio personnel.
+## Installation
 
-## Objectif du projet
+```bash
+git clone https://github.com/TKonate/portfolio-manager.git
+cd portfolio-manager
+```
 
-Ce projet a été développé pour apprendre à concevoir proprement un petit outil Python utile, maintenable et documenté.
+Configurez le chemin vers votre portfolio dans `config.json` :
 
-L'objectif principal est d'automatiser la création de fiches Markdown dans une arborescence de portfolio organisée par domaines, sous-domaines et types de contenus.
+```json
+{
+  "portfolio_root": "../portfolio"
+}
+```
 
-## Fonctionnalités de la V1
-
-* Création d'un fichier Markdown depuis le terminal
-* Génération automatique d'un nom de fichier propre
-* Génération d'un front matter YAML
-* Utilisation de templates selon le type de contenu
-* Création automatique des dossiers nécessaires
-* Protection contre l'écrasement d'un fichier existant
-* Validation simple des domaines et sous-domaines
-
-## Types de contenus supportés
-
-* `project`
-* `lab`
-* `publication`
-* `reading`
-
-## Exemple d'utilisation
+## Utilisation
 
 ```bash
 python portfolio_manager.py new publication
 ```
 
-Le programme demande ensuite :
+Le programme demande ensuite les informations de la fiche :
 
-```text
-Title:
-Domain:
-Subdomain:
-Tags, separated by commas:
-Date:
 ```
-
-Exemple :
-
-```text
 Title: Populations civiles et souverainetés fragmentées
 Domain: society
 Subdomain: political-science
@@ -53,94 +33,57 @@ Tags, separated by commas: sciences-politiques, osint, sahel
 Date: 2026
 ```
 
-Le programme génère alors un fichier comme :
+La fiche est créée automatiquement dans le dossier configuré :
 
-```text
+```
 portfolio/content/society/political-science/publications/populations-civiles-et-souverainetes-fragmentees.md
 ```
 
-## Domaines supportés
+## Types de contenus
 
-```text
-technology/
-├── computer-science
-└── electronics
-
-security/
-├── cybersecurity
-└── osint
-
-society/
-├── political-science
-└── sociology
-
-interdisciplinary/
-└── general
-```
-
-## Exemple de fichier généré
-
-```markdown
----
-title: "Populations civiles et souverainetés fragmentées"
-type: "publication"
-date: 2026
-tags:
-  - sciences-politiques
-  - osint
-  - sahel
-status: "draft"
----
-
-# Populations civiles et souverainetés fragmentées
-
-## Résumé
-
-## Objectif
-
-## Méthodologie
-
-## Compétences mobilisées
-
-## Sources et références
-```
-
-## Technologies utilisées
-
-* Python
-* Bibliothèque standard Python
-* `argparse`
-* `pathlib`
-* `re`
-* `unicodedata`
-* Git et GitHub
+| Type | Dossier de destination | Exemple |
+|---|---|---|
+| `project` | `projects/` | Projet technique |
+| `lab` | `labs/` | Laboratoire / expérimentation |
+| `publication` | `publications/` | Article, essai, analyse |
+| `reading` | `reading/` | Note de lecture |
 
 ## Structure du projet
 
-```text
+```
 portfolio-manager/
-├── README.md
-├── portfolio_manager.py
-├── templates.py
-└── .gitignore
+├── config.json              # Configuration (chemin du portfolio)
+├── portfolio_manager.py     # Point d'entrée CLI
+├── templates.py             # Templates Markdown par type
+├── .gitignore
+└── README.md
 ```
 
-## Compétences travaillées
+## Fonctionnalités
 
-* Création d'un outil CLI
-* Manipulation de fichiers avec Python
-* Génération de contenu Markdown
-* Organisation d'un petit projet logiciel
-* Validation d'entrées utilisateur
-* Utilisation de Git et GitHub
-* Documentation technique
+- Génération automatique d'un nom de fichier (slug) à partir du titre
+- Front matter YAML complet (title, type, date, tags, status)
+- Templates Markdown adaptés à chaque type de contenu
+- Validation des domaines et sous-domaines
+- Création automatique des dossiers manquants
+- Protection contre l'écrasement des fichiers existants
+- Configuration via `config.json` (chemin du portfolio personnalisable)
 
-## Améliorations possibles
+## Roadmap
 
-* Ajouter une commande `stats`
-* Générer automatiquement des index Markdown
-* Ajouter un fichier de configuration
-* Permettre de choisir le chemin du portfolio
-* Ajouter des tests unitaires
-* Améliorer la gestion des erreurs
-* Publier le projet comme package Python installable
+| Version | Fonctionnalités | Statut |
+|---|---|---|
+| V1 | Génération Markdown de base | ✅ Terminé |
+| V2 | Configuration via `config.json` | ✅ Terminé |
+| V3 | Prompts guidés et tags standards | ⏳ |
+| V4 | Métadonnées avancées par type de contenu | ⏳ |
+| V5 | Modification de fichiers existants | ⏳ |
+| V6 | Vérification de qualité | ⏳ |
+| V7 | Analyse de portfolio et tableau de bord | ⏳ |
+| V8 | Génération d'index Markdown | ⏳ |
+| V9 | Compatibilité Hugo / GitHub Pages | ⏳ |
+| V10 | Interface graphique | 🔮 |
+
+## Licence
+
+MIT
