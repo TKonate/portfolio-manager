@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "portfolio-manager"
 version = "0.2.0"
-description = "CLI Python pour générer des fiches Markdown structurées dans un portfolio"
+description = "CLI for generating structured Markdown portfolio entries"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [{name = "T. Konate", email = "ti.konate@proton.me"}]

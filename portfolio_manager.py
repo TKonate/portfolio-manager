@@ -37,7 +37,6 @@ from pathlib import Path
 # On importe les templates Markdown définis dans le fichier templates.py.
 from templates import TEMPLATES
 
-
 #============================================
 # CONFIGURATION DU PORTFOLIO
 #============================================
