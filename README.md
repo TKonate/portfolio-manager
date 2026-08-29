@@ -9,6 +9,12 @@ git clone https://github.com/TKonate/portfolio-manager.git
 cd portfolio-manager
 ```
 
+The project uses only the Python standard library at runtime. An editable installation is available for development:
+
+```bash
+pip install -e .
+```
+
 Configure the path to your portfolio in `config.json`:
 
 ```json
@@ -60,16 +66,20 @@ portfolio/content/society/political-science/publications/civilian-populations-an
 - Protection against overwriting existing files
 - Configurable portfolio root through `config.json`
 - Validation of malformed configuration values
-- Standard-library test suite with `unittest`
+- Automated tests with the Python standard library
+- Continuous integration across supported Python versions
 
 ## Project structure
 
 ```text
 portfolio-manager/
-├── config.json              # Portfolio path configuration
-├── portfolio_manager.py     # CLI entry point and generation logic
-├── templates.py             # Markdown templates
-├── tests/                   # Automated tests
+├── .github/workflows/ci.yml  # Continuous integration
+├── config.json               # Portfolio path configuration
+├── portfolio_manager.py      # CLI entry point and generation logic
+├── pyproject.toml            # Packaging metadata
+├── requirements.txt          # Runtime dependency declaration
+├── templates.py              # Markdown templates
+├── tests/                    # Automated tests
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -88,6 +98,13 @@ Compile-check the Python files:
 
 ```bash
 python3 -m py_compile portfolio_manager.py templates.py
+```
+
+If the development environment provides pytest and ruff, they can also be used:
+
+```bash
+pytest -v
+ruff check .
 ```
 
 ## Roadmap
