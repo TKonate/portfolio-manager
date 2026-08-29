@@ -1,6 +1,6 @@
 # Portfolio Manager
 
-CLI Python pour générer des fiches Markdown structurées dans un portfolio.
+A lightweight Python CLI for generating and organizing structured Markdown files for a personal portfolio.
 
 ## Installation
 
@@ -9,7 +9,7 @@ git clone https://github.com/TKonate/portfolio-manager.git
 cd portfolio-manager
 ```
 
-Configurez le chemin vers votre portfolio dans `config.json` :
+Configure the path to your portfolio in `config.json`:
 
 ```json
 {
@@ -17,73 +17,83 @@ Configurez le chemin vers votre portfolio dans `config.json` :
 }
 ```
 
-## Utilisation
+Relative paths are resolved from the directory containing `config.json`.
+
+## Usage
 
 ```bash
 python portfolio_manager.py new publication
 ```
 
-Le programme demande ensuite les informations de la fiche :
+The program prompts for the content metadata:
 
-```
-Title: Populations civiles et souverainetés fragmentées
+```text
+Title: Civilian populations and fragmented sovereignties
 Domain: society
 Subdomain: political-science
-Tags, separated by commas: sciences-politiques, osint, sahel
+Tags, separated by commas: political-science, osint, sahel
 Date: 2026
 ```
 
-La fiche est créée automatiquement dans le dossier configuré :
+The Markdown file is generated in the configured portfolio directory:
 
+```text
+portfolio/content/society/political-science/publications/civilian-populations-and-fragmented-sovereignties.md
 ```
-portfolio/content/society/political-science/publications/populations-civiles-et-souverainetes-fragmentees.md
-```
 
-## Types de contenus
+## Supported content types
 
-| Type | Dossier de destination | Exemple |
+| Type | Destination folder | Example |
 |---|---|---|
-| `project` | `projects/` | Projet technique |
-| `lab` | `labs/` | Laboratoire / expérimentation |
-| `publication` | `publications/` | Article, essai, analyse |
-| `reading` | `reading/` | Note de lecture |
+| `project` | `projects/` | Technical project |
+| `lab` | `labs/` | Experiment or lab |
+| `publication` | `publications/` | Article or analysis |
+| `reading` | `reading/` | Reading note |
 
-## Structure du projet
+## Features
 
-```
+- Automatic filename slug generation from the title
+- YAML front matter with title, type, date, tags and status
+- Markdown templates for each content type
+- Domain and subdomain validation
+- Automatic creation of missing directories
+- Protection against overwriting existing files
+- Configurable portfolio root through `config.json`
+- Validation of malformed configuration values
+- Standard-library test suite with `unittest`
+
+## Project structure
+
+```text
 portfolio-manager/
-├── config.json              # Configuration (chemin du portfolio)
-├── portfolio_manager.py     # Point d'entrée CLI
-├── templates.py             # Templates Markdown par type
+├── config.json              # Portfolio path configuration
+├── portfolio_manager.py     # CLI entry point and generation logic
+├── templates.py             # Markdown templates
+├── tests/                   # Automated tests
 ├── .gitignore
-└── README.md
+├── LICENSE
+├── README.md
+└── ROADMAP.md
 ```
 
-## Fonctionnalités
+## Development
 
-- Génération automatique d'un nom de fichier (slug) à partir du titre
-- Front matter YAML complet (title, type, date, tags, status)
-- Templates Markdown adaptés à chaque type de contenu
-- Validation des domaines et sous-domaines
-- Création automatique des dossiers manquants
-- Protection contre l'écrasement des fichiers existants
-- Configuration via `config.json` (chemin du portfolio personnalisable)
+Run the test suite with the Python standard library:
+
+```bash
+python3 -m unittest discover -v
+```
+
+Compile-check the Python files:
+
+```bash
+python3 -m py_compile portfolio_manager.py templates.py
+```
 
 ## Roadmap
 
-| Version | Fonctionnalités | Statut |
-|---|---|---|
-| V1 | Génération Markdown de base | ✅ Terminé |
-| V2 | Configuration via `config.json` | ✅ Terminé |
-| V3 | Prompts guidés et tags standards | ⏳ |
-| V4 | Métadonnées avancées par type de contenu | ⏳ |
-| V5 | Modification de fichiers existants | ⏳ |
-| V6 | Vérification de qualité | ⏳ |
-| V7 | Analyse de portfolio et tableau de bord | ⏳ |
-| V8 | Génération d'index Markdown | ⏳ |
-| V9 | Compatibilité Hugo / GitHub Pages | ⏳ |
-| V10 | Interface graphique | 🔮 |
+See [`ROADMAP.md`](ROADMAP.md) for the planned evolution of the project.
 
-## Licence
+## License
 
 MIT

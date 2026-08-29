@@ -1,42 +1,44 @@
 # Roadmap — Portfolio Manager
 
-Portfolio Manager est un outil en ligne de commande développé en Python pour créer, organiser, modifier et maintenir les fichiers Markdown d’un portfolio personnel.
+Portfolio Manager is a Python command-line tool for creating, organizing, updating and maintaining Markdown files for a personal portfolio.
 
-Cette roadmap décrit l’évolution prévue du projet.
+This roadmap describes the planned evolution of the project.
 
-## V1 — Génération Markdown simple
+## V1 — Basic Markdown generation
 
-**Statut : terminée**
+**Status: complete**
 
-Objectif : créer automatiquement des fichiers Markdown structurés dans l’arborescence du portfolio.
+Goal: automatically create structured Markdown files in the portfolio hierarchy.
 
-Fonctionnalités réalisées :
+Implemented features:
 
-* commande `new`
-* prise en charge des types `project`, `lab`, `publication` et `reading`
-* génération automatique d’un nom de fichier propre
-* génération d’un front matter YAML
-* utilisation de templates Markdown
-* validation simple des domaines et sous-domaines
-* création automatique des dossiers nécessaires
-* protection contre l’écrasement d’un fichier existant
-* documentation du projet
-* publication du code sur GitHub
+- `new` command
+- Support for `project`, `lab`, `publication` and `reading` content types
+- Automatic clean filename generation
+- YAML front matter generation
+- Markdown templates
+- Basic domain and subdomain validation
+- Automatic creation of missing directories
+- Protection against overwriting existing files
+- Project documentation
+- GitHub repository publication workflow prepared
 
-## V2 — Configuration du vrai portfolio
+## V2 — Configurable portfolio root
 
-Objectif : permettre à l’outil d’écrire directement dans le vrai dossier du portfolio au lieu d’utiliser un dossier de test local.
+**Status: complete**
 
-Fonctionnalités prévues :
+Goal: allow the tool to write to the actual portfolio directory instead of a local test directory.
 
-* ajouter un fichier `config.json`
-* définir un chemin `portfolio_root`
-* charger la configuration au lancement du programme
-* utiliser le chemin configuré pour créer les fichiers Markdown
-* vérifier que le dossier cible existe
-* éviter les écritures accidentelles au mauvais endroit
+Implemented features:
 
-Exemple de configuration :
+- `config.json` configuration file
+- Configurable `portfolio_root` path
+- Configuration loading at startup
+- Relative path resolution from the configuration file location
+- Validation that the target portfolio exists
+- Protection against writing to an invalid location
+
+Example:
 
 ```json
 {
@@ -44,166 +46,151 @@ Exemple de configuration :
 }
 ```
 
-## V3 — Prompts guidés et tags standards
+## V3 — Guided prompts and standard tags
 
-Objectif : améliorer l’expérience utilisateur lors de la création d’un nouveau contenu.
+Goal: improve the experience when creating new content.
 
-Fonctionnalités prévues :
+Planned features:
 
-* afficher les domaines disponibles avant la saisie
-* proposer les sous-domaines selon le domaine choisi
-* proposer des tags par défaut selon le type de contenu
-* permettre d’ajouter de nouveaux tags standards
-* demander le statut du contenu : `draft`, `in-progress`, `published`
-* proposer des valeurs par défaut pour certains champs
+- Display available domains before input
+- Suggest subdomains based on the selected domain
+- Suggest default tags based on the content type
+- Support standard tag additions
+- Ask for content status: `draft`, `in-progress` or `published`
+- Provide sensible defaults for common fields
 
-## V4 — Métadonnées avancées par type de contenu
+## V4 — Type-specific metadata
 
-Objectif : enrichir les fichiers Markdown avec des métadonnées adaptées à leur type.
+Goal: enrich files with metadata appropriate to their content type.
 
-Fonctionnalités prévues :
+For projects:
 
-Pour les projets :
+- `repository`
+- `demo`
 
-* `repository`
-* `demo`
+For labs:
 
-Pour les labs :
+- `repository`
+- `dataset`
+- `diagram`
 
-* `repository`
-* `dataset`
-* `diagram`
+For publications:
 
-Pour les publications :
+- `pdf`
+- `source_url`
 
-* `pdf`
-* `source_url`
+For reading notes:
 
-Pour les notes de lecture :
+- `pdf`
+- `author`
+- `source_url`
 
-* `pdf`
-* `author`
-* `source_url`
+The `skills` field remains optional and will only be added if it provides real value beyond tags.
 
-Le champ `skills` reste une piste possible, mais il ne sera ajouté que s’il apporte une vraie valeur par rapport aux tags.
+## V5 — Updating existing files
 
-## V5 — Modification de fichiers existants
+Goal: update selected metadata without recreating the entire file.
 
-Objectif : permettre la modification de certaines métadonnées sans recréer entièrement un fichier Markdown.
+Planned features:
 
-Fonctionnalités prévues :
+- Change the content status
+- Move content from `draft` to `published`
+- Update tags
+- Update fields such as `repository`, `demo` or `pdf`
+- Preserve existing Markdown content
 
-* changer le statut d’un contenu
-* passer un contenu de `draft` à `published`
-* modifier les tags
-* modifier un champ comme `repository`, `demo` ou `pdf`
-* préserver le contenu Markdown existant
-
-Exemple de commande possible :
+Possible command:
 
 ```bash
 python portfolio_manager.py update-status path/to/file.md published
 ```
 
-## V6 — Vérification de qualité
+## V6 — Portfolio quality checks
 
-Objectif : maintenir le portfolio propre, cohérent et standardisé.
+Goal: keep the portfolio clean, consistent and standardized.
 
-Commande envisagée :
+Possible command:
 
 ```bash
 python portfolio_manager.py check
 ```
 
-Contrôles possibles :
+Potential checks:
 
-* front matter présent
-* titre présent
-* type valide
-* date présente
-* statut valide
-* tags présents
-* cohérence entre `status` et `draft`
-* fichier PDF indiqué mais absent
-* dépôt GitHub manquant pour un projet publié
-* fichier placé dans le bon dossier
-* nom de fichier conforme
+- Front matter is present
+- Title is present
+- Content type is valid
+- Date is present
+- Status is valid
+- Tags are present
+- `status` and `draft` are consistent
+- Referenced PDFs exist
+- Published projects include a repository link
+- Files are placed in the correct directory
+- Filenames follow the naming convention
 
-Cette fonctionnalité doit aider à éviter les erreurs de structure dans le portfolio.
+## V7 — Portfolio analysis and dashboard data
 
-## V7 — Analyse de portfolio et tableau de bord
+Goal: provide useful statistics about the portfolio.
 
-Objectif : produire des statistiques utiles sur l’état du portfolio.
-
-Commande envisagée :
+Possible command:
 
 ```bash
 python portfolio_manager.py stats
 ```
 
-Statistiques possibles :
+Potential statistics:
 
-* nombre total de contenus
-* contenus par type
-* contenus par domaine
-* contenus par statut
-* tags les plus utilisés
-* projets publiés
-* projets en cours
-* publications avec ou sans PDF
-* contenus incomplets
+- Total number of content files
+- Content by type
+- Content by domain
+- Content by status
+- Most frequently used tags
+- Published projects
+- Projects in progress
+- Publications with or without PDFs
+- Incomplete content
 
-À terme, cette commande pourra générer un fichier de données utilisable par la page d’accueil du portfolio.
-
-Exemple :
+The command could eventually generate data for the portfolio homepage:
 
 ```text
 data/portfolio_stats.json
 ```
 
-Ce fichier pourra servir à afficher automatiquement des indicateurs comme :
+## V8 — Markdown index generation
 
-* nombre de projets publiés
-* nombre de projets en cours
-* nombre de labs techniques
-* répartition par domaine
+Goal: generate index pages to improve portfolio navigation.
 
-## V8 — Génération d’index Markdown
-
-Objectif : générer automatiquement des pages d’index pour faciliter la navigation dans le portfolio.
-
-Commande envisagée :
+Possible command:
 
 ```bash
 python portfolio_manager.py index
 ```
 
-Fonctionnalités prévues :
+Planned features:
 
-* générer des index par domaine
-* générer des index par sous-domaine
-* générer des index par type de contenu
-* créer des fichiers `_index.md`
-* lister les contenus publiés
-* ignorer les brouillons si nécessaire
+- Generate indexes by domain
+- Generate indexes by subdomain
+- Generate indexes by content type
+- Create `_index.md` files
+- List published content
+- Optionally ignore drafts
 
-Cette fonctionnalité sera particulièrement utile dans le cadre d’un site statique.
+## V9 — Hugo and GitHub Pages compatibility
 
-## V9 — Compatibilité Hugo / GitHub Pages
+Goal: prepare the portfolio for static-site publication.
 
-Objectif : préparer le portfolio pour une publication sous forme de site statique.
+Planned features:
 
-Fonctionnalités prévues :
+- Hugo-compatible front matter
+- `draft: true` or `draft: false`
+- Improved metadata organization
+- `_index.md` support
+- Optional page bundles
+- Pre-publication validation
+- Homepage data generation
 
-* front matter compatible Hugo
-* ajout du champ `draft: true` ou `draft: false`
-* meilleure organisation des métadonnées
-* support des fichiers `_index.md`
-* support optionnel des page bundles
-* vérification avant publication
-* génération de données pour la page d’accueil
-
-Pour les publications ou readings avec PDF, une structure de type page bundle pourra être utilisée :
+For publications or reading notes with PDFs, page bundles could use this structure:
 
 ```text
 content/society/political-science/publications/example-publication/
@@ -211,44 +198,30 @@ content/society/political-science/publications/example-publication/
 └── example-publication.pdf
 ```
 
-## V10 — Interface graphique
+## V10 — Graphical interface
 
-Objectif : rendre l’outil plus accessible et plus confortable à utiliser.
+Goal: make the tool more accessible and comfortable to use.
 
-Fonctionnalités possibles :
+Possible features:
 
-* formulaire de création de contenu
-* choix guidé du domaine et du sous-domaine
-* sélection des tags standards
-* ajout d’un PDF
-* modification du statut
-* modification de certaines métadonnées
-* ouverture d’un fichier Markdown existant
-* prévisualisation simple
+- Content creation form
+- Guided domain and subdomain selection
+- Standard tag selection
+- PDF attachment
+- Status editing
+- Selected metadata editing
+- Opening existing Markdown files
+- Basic preview
 
-Cette version viendra plus tard, lorsque la logique principale de la CLI sera stable.
+This version should come after the core CLI logic is stable.
 
-## Principes de développement
+## Development principles
 
-Le projet doit rester progressif et maintenable.
-
-Principes à respecter :
-
-* avancer par petites versions
-* garder un code lisible
-* limiter les dépendances inutiles
-* documenter chaque fonctionnalité
-* tester chaque commande manuellement
-* faire des commits clairs
-* privilégier l’utilité réelle plutôt que la complexité
-* garder une compatibilité avec un futur portfolio Hugo ou GitHub Pages
-
-## Priorité actuelle
-
-La prochaine étape de développement est la V2 :
-
-```text
-Configuration du vrai chemin du portfolio
-```
-
-Cette version permettra à Portfolio Manager de devenir réellement utilisable au quotidien, en créant directement les fichiers Markdown dans le vrai dépôt du portfolio.
+- Move forward in small versions
+- Keep the code readable
+- Limit unnecessary dependencies
+- Document every feature
+- Test every command manually
+- Keep commits clear and honest
+- Prefer real-world usefulness over complexity
+- Preserve compatibility with a future Hugo or GitHub Pages portfolio

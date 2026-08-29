@@ -423,16 +423,23 @@ def create_markdown_file(file_path, markdown_content):
 # LECTURE DE LA CONFIGURATION
 #============================================
 
-def load_config():
+def load_config(config_path=Path("config.json")):
     """
-    Charge la configuration du projet depuis config.json.
+    Charge la configuration du projet depuis un fichier JSON.
+
+    Les chemins relatifs sont résolus par rapport au dossier contenant
+    le fichier de configuration, et non par rapport au dossier courant.
+
+    Paramètre :
+    - config_path : chemin vers le fichier de configuration.
 
     Retour :
-    - config : dictionnaire contenant les paramètres du programme.
+    - config : dictionnaire contenant les paramètres du programme ;
+    - None si la configuration est invalide.
     """
 
-    # Chemin du fichier de configuration.
-    config_path = Path("config.json")
+    # Le chemin de configuration peut être fourni par un test ou un appelant.
+    config_path = Path(config_path)
 
     # Si le fichier n'existe pas, on affiche une erreur claire.
     if not config_path.exists():
@@ -461,17 +468,28 @@ def load_config():
         print('}')
         return None
 
+    # La configuration doit être un objet JSON.
+    if not isinstance(config, dict):
+        print("Erreur : config.json doit contenir un objet JSON.")
+        return None
+
     # Vérification de la présence du champ obligatoire.
     if "portfolio_root" not in config:
         print('Erreur : le champ "portfolio_root" est absent de config.json.')
         return None
 
+    # Le chemin doit être une chaîne non vide.
+    if not isinstance(config["portfolio_root"], str) or not config["portfolio_root"].strip():
+        print('Erreur : le champ "portfolio_root" doit être une chaîne non vide.')
+        return None
+
+    # Les chemins relatifs sont ancrés au fichier de configuration.
+    portfolio_root = Path(config["portfolio_root"])
+    if not portfolio_root.is_absolute():
+        portfolio_root = config_path.parent / portfolio_root
+    config["portfolio_root"] = portfolio_root.resolve()
+
     return config
-
-
-#============================================
-# VALIDATION DU CHEMIN DU PORTFOLIO
-#============================================
 
 def validate_portfolio_root(portfolio_root):
     """
