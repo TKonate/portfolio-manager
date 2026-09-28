@@ -2,6 +2,8 @@
 
 A lightweight Python CLI for generating and organizing structured Markdown files for a personal portfolio.
 
+[![CI](https://github.com/TKonate/portfolio-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/TKonate/portfolio-manager/actions/workflows/ci.yml)
+
 ## Installation
 
 ```bash
