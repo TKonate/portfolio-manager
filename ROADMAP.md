@@ -1,227 +1,147 @@
 # Roadmap — Portfolio Manager
 
-Portfolio Manager is a Python command-line tool for creating, organizing, updating and maintaining Markdown files for a personal portfolio.
+Portfolio Manager is a Python command-line tool for creating, organising, updating and maintaining
+Markdown files for a personal portfolio.
 
-This roadmap describes the planned evolution of the project.
+This roadmap describes the planned evolution of the project. Everything up to V10 is implemented in
+version `1.0.0`.
 
 ## V1 — Basic Markdown generation
 
 **Status: complete**
-
-Goal: automatically create structured Markdown files in the portfolio hierarchy.
-
-Implemented features:
 
 - `new` command
 - Support for `project`, `lab`, `publication` and `reading` content types
 - Automatic clean filename generation
 - YAML front matter generation
 - Markdown templates
-- Basic domain and subdomain validation
+- Domain and subdomain validation
 - Automatic creation of missing directories
 - Protection against overwriting existing files
-- Project documentation
-- GitHub repository publication workflow prepared
 
 ## V2 — Configurable portfolio root
 
 **Status: complete**
 
-Goal: allow the tool to write to the actual portfolio directory instead of a local test directory.
-
-Implemented features:
-
 - `config.json` configuration file
 - Configurable `portfolio_root` path
-- Configuration loading at startup
-- Relative path resolution from the configuration file location
-- Validation that the target portfolio exists
-- Protection against writing to an invalid location
-
-Example:
-
-```json
-{
-  "portfolio_root": "../portfolio"
-}
-```
+- Resolution relative to the configuration file, not the current directory
+- `--config` and `--portfolio-root` overrides
+- Validation that the target portfolio exists and is a directory
 
 ## V3 — Guided prompts and standard tags
 
-Goal: improve the experience when creating new content.
+**Status: complete**
 
-Planned features:
-
-- Display available domains before input
-- Suggest subdomains based on the selected domain
-- Suggest default tags based on the content type
-- Support standard tag additions
-- Ask for content status: `draft`, `in-progress` or `published`
-- Provide sensible defaults for common fields
+- Numbered menu for the content type, domain and subdomain (the value can also be typed)
+- Subdomains suggested from the selected domain
+- Default tags suggested from the type, domain and subdomain, plus `default_tags` from the config
+- Status prompt: `draft`, `in-progress` or `published`
+- Interactive menu when `pfm` is run without a command
+- `--no-input` mode for scripting
 
 ## V4 — Type-specific metadata
 
-Goal: enrich files with metadata appropriate to their content type.
+**Status: complete**
 
-For projects:
-
-- `repository`
-- `demo`
-
-For labs:
-
-- `repository`
-- `dataset`
-- `diagram`
-
-For publications:
-
-- `pdf`
-- `source_url`
-
-For reading notes:
-
-- `pdf`
-- `author`
-- `source_url`
-
-The `skills` field remains optional and will only be added if it provides real value beyond tags.
+- Projects: `repository`, `demo`
+- Labs: `repository`, `dataset`, `diagram`
+- Publications: `pdf`, `source_url`
+- Reading notes: `pdf`, `author`, `source_url`
+- URLs validated, paths kept inside the portfolio
+- Unknown fields refused on update, empty values remove the key
 
 ## V5 — Updating existing files
 
-Goal: update selected metadata without recreating the entire file.
+**Status: complete**
 
-Planned features:
-
-- Change the content status
-- Move content from `draft` to `published`
-- Update tags
-- Update fields such as `repository`, `demo` or `pdf`
-- Preserve existing Markdown content
-
-Possible command:
-
-```bash
-python portfolio_manager.py update-status path/to/file.md published
-```
+- Change the status (and keep `draft` consistent)
+- Change the title and the date
+- Replace, add or remove tags
+- Set or remove type-specific fields
+- Preserve the Markdown body and hand-written front matter keys
+- `--dry-run` to preview a change
+- `update-status` shortcut
 
 ## V6 — Portfolio quality checks
 
-Goal: keep the portfolio clean, consistent and standardized.
+**Status: complete**
 
-Possible command:
-
-```bash
-python portfolio_manager.py check
-```
-
-Potential checks:
-
-- Front matter is present
-- Title is present
-- Content type is valid
-- Date is present
-- Status is valid
-- Tags are present
-- `status` and `draft` are consistent
-- Referenced PDFs exist
-- Published projects include a repository link
-- Files are placed in the correct directory
-- Filenames follow the naming convention
+- Front matter present and parseable
+- Title, date, status and type present and valid
+- `draft` consistent with `status`
+- Tags present (warning)
+- Referenced PDF exists
+- Published projects include a repository URL (warning)
+- File placed in `content/<domain>/<subdomain>/<type>/`
+- Domain and subdomain matching the directory (warning when undeclared)
+- Filename follows the slug convention
+- Duplicate titles detected
+- Stable codes, `--json`, `--strict`, exit code `1` on failure
 
 ## V7 — Portfolio analysis and dashboard data
 
-Goal: provide useful statistics about the portfolio.
+**Status: complete**
 
-Possible command:
-
-```bash
-python portfolio_manager.py stats
-```
-
-Potential statistics:
-
-- Total number of content files
-- Content by type
-- Content by domain
-- Content by status
-- Most frequently used tags
-- Published projects
-- Projects in progress
-- Publications with or without PDFs
-- Incomplete content
-
-The command could eventually generate data for the portfolio homepage:
-
-```text
-data/portfolio_stats.json
-```
+- `stats` command: totals by type, status, domain and subdomain
+- Most used tags
+- Published projects and projects in progress
+- Publications with and without PDF
+- Drafts and incomplete entries
+- `--json` output and `data/portfolio_stats.json` for the homepage
 
 ## V8 — Markdown index generation
 
-Goal: generate index pages to improve portfolio navigation.
+**Status: complete**
 
-Possible command:
-
-```bash
-python portfolio_manager.py index
-```
-
-Planned features:
-
-- Generate indexes by domain
-- Generate indexes by subdomain
-- Generate indexes by content type
-- Create `_index.md` files
-- List published content
-- Optionally ignore drafts
+- `index` command generating `_index.md` at four levels (portfolio, domain, subdomain, type)
+- Relative links (GitHub / Obsidian) or Hugo pretty URLs
+- Drafts listed with a marker, or excluded with `--no-drafts`
+- Generated files carry a marker and are excluded from the entry listing
 
 ## V9 — Hugo and GitHub Pages compatibility
 
-Goal: prepare the portfolio for static-site publication.
+**Status: complete**
 
-Planned features:
-
-- Hugo-compatible front matter
-- `draft: true` or `draft: false`
-- Improved metadata organization
-- `_index.md` support
-- Optional page bundles
-- Pre-publication validation
-- Homepage data generation
-
-For publications or reading notes with PDFs, page bundles could use this structure:
-
-```text
-content/society/political-science/publications/example-publication/
-├── index.md
-└── example-publication.pdf
-```
+- Hugo-compatible front matter with a boolean `draft`
+- Unquoted ISO dates so Hugo parses them
+- `_index.md` support and optional page bundles (`<slug>/index.md`)
+- PDF and diagram attached inside the bundle
+- `hugo` command: validation report and in-place normalisation (`--apply`)
+- Pre-publication validation (types, titles, dates, draft flag, bundle attachments)
+- Homepage data generation through `stats --write`
 
 ## V10 — Graphical interface
 
-Goal: make the tool more accessible and comfortable to use.
+**Status: complete**
 
-Possible features:
+- Local web UI (`pfm serve`) built with the standard library only
+- Creation form with guided domain/subdomain selection and type-specific fields
+- Entry list with search and filters, metadata table and rendered preview
+- Status editing, metadata editing, deletion
+- Statistics, homepage JSON, quality checks and index regeneration from the UI
+- Loopback-only server, cross-origin and DNS-rebinding protection, path traversal refused
+- End-to-end tests over real HTTP in CI
 
-- Content creation form
-- Guided domain and subdomain selection
-- Standard tag selection
-- PDF attachment
-- Status editing
-- Selected metadata editing
-- Opening existing Markdown files
-- Basic preview
+A native desktop interface (Tkinter) is not planned: the web UI already covers the use case and
+stays testable on a headless machine.
 
-This version should come after the core CLI logic is stable.
+## Beyond 1.0
+
+Not scheduled, listed for honesty:
+
+- Move or rename an entry from the CLI (`pfm move`)
+- Import an existing tree and infer missing front matter
+- Optional full CommonMark preview
+- Per-section `hugo.toml` generation
 
 ## Development principles
 
 - Move forward in small versions
-- Keep the code readable
-- Limit unnecessary dependencies
+- Keep the code readable and commented
+- Limit unnecessary dependencies (currently: none)
 - Document every feature
-- Test every command manually
+- Test every command, including failure paths
 - Keep commits clear and honest
 - Prefer real-world usefulness over complexity
 - Preserve compatibility with a future Hugo or GitHub Pages portfolio
