@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio Manager</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span>Portfolio Manager</span>
+        <span class="muted" id="version"></span>
+      </div>
+      <div class="root muted" id="portfolio-root"></div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-view="entries" role="tab">Entries</button>
+      <button class="tab" data-view="new" role="tab">New entry</button>
+      <button class="tab" data-view="stats" role="tab">Statistics</button>
+      <button class="tab" data-view="check" role="tab">Quality</button>
+    </nav>
+
+    <main>
+      <!-- Entries ------------------------------------------------------- -->
+      <section class="view is-active" id="view-entries">
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Search title, tag or path…" />
+          <select id="filter-type" aria-label="Filter by type"></select>
+          <select id="filter-status" aria-label="Filter by status"></select>
+          <select id="filter-domain" aria-label="Filter by domain"></select>
+          <button class="ghost" id="refresh">Refresh</button>
+        </div>
+        <div class="split">
+          <ul class="entry-list" id="entry-list"></ul>
+          <article class="detail" id="entry-detail">
+            <p class="muted">Select an entry on the left.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- New entry ----------------------------------------------------- -->
+      <section class="view" id="view-new">
+        <form class="card form" id="create-form">
+          <h2>New entry</h2>
+          <div class="grid two">
+            <label>
+              Type
+              <select id="new-type" required></select>
+            </label>
+            <label>
+              Status
+              <select id="new-status"></select>
+            </label>
+          </div>
+          <label>
+            Title
+            <input id="new-title" type="text" required maxlength="200" placeholder="What did you build or learn?" />
+          </label>
+          <div class="grid two">
+            <label>
+              Domain
+              <select id="new-domain" required></select>
+            </label>
+            <label>
+              Subdomain
+              <select id="new-subdomain" required></select>
+            </label>
+          </div>
+          <div class="grid two">
+            <label>
+              Tags
+              <input id="new-tags" type="text" placeholder="python, cli, markdown" />
+            </label>
+            <label>
+              Date
+              <input id="new-date" type="date" />
+            </label>
+          </div>
+          <div class="grid two" id="new-extra-fields"></div>
+          <label class="checkbox">
+            <input id="new-bundle" type="checkbox" />
+            Hugo page bundle (creates <code>&lt;slug&gt;/index.md</code>)
+          </label>
+          <div class="actions">
+            <button type="submit" class="primary">Create entry</button>
+            <span class="muted" id="create-status"></span>
+          </div>
+        </form>
+      </section>
+
+      <!-- Statistics ---------------------------------------------------- -->
+      <section class="view" id="view-stats">
+        <div class="toolbar">
+          <button class="ghost" id="reload-stats">Reload</button>
+          <button class="ghost" id="write-stats">Write data/portfolio_stats.json</button>
+        </div>
+        <div id="stats-content" class="stats"></div>
+      </section>
+
+      <!-- Quality ------------------------------------------------------- -->
+      <section class="view" id="view-check">
+        <div class="toolbar">
+          <button class="ghost" id="run-check">Run checks</button>
+          <button class="ghost" id="run-index">Regenerate indexes</button>
+          <button class="ghost" id="run-hugo">Normalise for Hugo</button>
+        </div>
+        <div id="check-content" class="issues">
+          <p class="muted">Run the checks to validate front matter, paths and metadata.</p>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
