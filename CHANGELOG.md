@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] — 2026-11-17
+
+### Fixed
+
+- The demo portfolio (`examples/portfolio`) was missing from the repository: the `.gitignore`
+  pattern `portfolio/` also matched `examples/portfolio/`. It now only ignores the runtime
+  portfolio at the repository root, and `tests/test_examples.py` fails if the demo disappears.
+- `--config` (and `$PFM_CONFIG`) pointing to a missing file now raises a clear error instead of
+  silently falling back to another `config.json`, which could read the wrong portfolio.
+
 ## [1.0.0] — 2026-11-17
 
 Complete implementation of roadmap V3 to V10. The tool is now a package (`pfm`) with 278 tests,
