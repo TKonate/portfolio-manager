@@ -1,0 +1,117 @@
+{
+  "generated_at": "2026-11-17T23:49:11+00:00",
+  "generator": "portfolio-manager 1.0.1",
+  "total": 6,
+  "by_type": {
+    "lab": 2,
+    "project": 2,
+    "publication": 1,
+    "reading": 1
+  },
+  "by_status": {
+    "draft": 1,
+    "in-progress": 1,
+    "published": 4
+  },
+  "by_domain": {
+    "interdisciplinary": 1,
+    "security": 2,
+    "society": 1,
+    "technology": 2
+  },
+  "by_subdomain": {
+    "computer-science": 1,
+    "cybersecurity": 1,
+    "electronics": 1,
+    "general": 1,
+    "osint": 1,
+    "political-science": 1
+  },
+  "top_tags": [
+    {
+      "tag": "osint",
+      "count": 2
+    },
+    {
+      "tag": "python",
+      "count": 2
+    },
+    {
+      "tag": "systems-thinking",
+      "count": 1
+    },
+    {
+      "tag": "reading",
+      "count": 1
+    },
+    {
+      "tag": "threat-modeling",
+      "count": 1
+    },
+    {
+      "tag": "stride",
+      "count": 1
+    },
+    {
+      "tag": "email",
+      "count": 1
+    },
+    {
+      "tag": "automation",
+      "count": 1
+    },
+    {
+      "tag": "political-science",
+      "count": 1
+    },
+    {
+      "tag": "sahel",
+      "count": 1
+    },
+    {
+      "tag": "cli",
+      "count": 1
+    },
+    {
+      "tag": "markdown",
+      "count": 1
+    },
+    {
+      "tag": "esp32",
+      "count": 1
+    },
+    {
+      "tag": "mqtt",
+      "count": 1
+    },
+    {
+      "tag": "homelab",
+      "count": 1
+    }
+  ],
+  "published_projects": [
+    {
+      "title": "Portfolio Manager",
+      "id": "content/technology/computer-science/projects/portfolio-manager.md",
+      "domain": "technology",
+      "subdomain": "computer-science",
+      "repository": "https://github.com/TKonate/portfolio-manager",
+      "tags": [
+        "python",
+        "cli",
+        "markdown"
+      ]
+    }
+  ],
+  "projects_in_progress": [
+    {
+      "title": "Homelab sensor node",
+      "id": "content/technology/electronics/projects/homelab-sensor-node.md",
+      "domain": "technology"
+    }
+  ],
+  "publications_with_pdf": 1,
+  "publications_without_pdf": 0,
+  "drafts": 2,
+  "incomplete": []
+}

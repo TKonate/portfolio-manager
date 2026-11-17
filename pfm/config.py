@@ -104,17 +104,31 @@ def find_config_path(explicit: str | Path | None = None) -> Path | None:
     Resolution order: explicit argument, ``$PFM_CONFIG``, current directory,
     then the repository root (useful when the tool is installed with pip and
     launched from elsewhere).
+
+    An explicit path -- the ``--config`` flag or ``$PFM_CONFIG`` -- must exist:
+    silently falling back to another file would hide a typo and read the wrong
+    portfolio.
+
+    Raises:
+        ConfigError: When an explicitly requested file does not exist.
     """
-    candidates: list[Path] = []
     if explicit is not None:
-        candidates.append(Path(explicit).expanduser())
+        candidate = Path(explicit).expanduser()
+        if candidate.is_file():
+            return candidate.resolve()
+        raise ConfigError(f"configuration file not found: {candidate}")
+
     env_value = os.environ.get(CONFIG_ENV_VAR)
     if env_value:
-        candidates.append(Path(env_value).expanduser())
-    candidates.append(Path.cwd() / CONFIG_FILENAME)
-    candidates.append(Path(__file__).resolve().parent.parent / CONFIG_FILENAME)
+        candidate = Path(env_value).expanduser()
+        if candidate.is_file():
+            return candidate.resolve()
+        raise ConfigError(f"{CONFIG_ENV_VAR} points to a missing file: {candidate}")
 
-    for candidate in candidates:
+    for candidate in (
+        Path.cwd() / CONFIG_FILENAME,
+        Path(__file__).resolve().parent.parent / CONFIG_FILENAME,
+    ):
         if candidate.is_file():
             return candidate.resolve()
     return None

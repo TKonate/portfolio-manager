@@ -284,7 +284,7 @@ CI runs the suite on Python 3.10, 3.11, 3.12 and 3.13 with ruff and mypy enforce
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). Versions V1 to V10 are implemented in `1.0.0`; what comes next is
+See [ROADMAP.md](ROADMAP.md). Versions V1 to V10 are implemented since `1.0.0`; what comes next is
 tracked there as "beyond 1.0".
 
 ## License

@@ -139,6 +139,15 @@ class FindConfigPathTests(unittest.TestCase):
     def test_explicit_path_wins(self) -> None:
         self.assertEqual(find_config_path(self.config_path), self.config_path.resolve())
 
+    def test_explicit_missing_path_raises(self) -> None:
+        with self.assertRaises(ConfigError):
+            find_config_path(self.directory / "missing.json")
+
+    def test_environment_variable_missing_file_raises(self) -> None:
+        with patch.dict(os.environ, {"PFM_CONFIG": str(self.directory / "missing.json")}):
+            with self.assertRaises(ConfigError):
+                find_config_path()
+
     def test_environment_variable(self) -> None:
         with patch.dict(os.environ, {"PFM_CONFIG": str(self.config_path)}):
             self.assertEqual(find_config_path(), self.config_path.resolve())
