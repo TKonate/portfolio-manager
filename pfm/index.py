@@ -57,7 +57,12 @@ def _entry_line(entry: Entry, style: str) -> str:
 
 
 def _page(title: str, intro: str, lines: list[str], *, date: str) -> str:
-    """Assemble a generated page with minimal, valid front matter."""
+    """Assemble a generated page with minimal, valid front matter.
+
+    ``type: index`` is not one of the content types.  It exists so the page has
+    the same Hugo-shaped keys as an entry; the ``_`` file prefix is what keeps
+    it out of the content walk.
+    """
     metadata = {
         "title": title,
         "type": "index",

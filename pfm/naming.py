@@ -1,6 +1,12 @@
 """File naming helpers: slugs, tags and target paths.
 
-Every function here is pure (no disk access) so it is trivial to test.
+Every function here is pure: it reads no configuration and touches no disk, so
+a name can be computed, compared and tested before the file exists.
+
+Choosing that boundary means this module does not check whether a target path
+already exists, nor whether its parent directory is writable:
+:func:`pfm.create.create_entry` owns both, and turns a collision into a
+user-facing error.
 """
 
 from __future__ import annotations
@@ -62,6 +68,8 @@ def parse_tags(tags: str | list[str] | tuple[str, ...]) -> list[str]:
         if not tag:
             continue
         tag = re.sub(r"\s+", "-", tag)
+        # The allowed punctuation is not decorative: it keeps tags such as
+        # ``c++``, ``ci:build`` and ``python3.12`` intact.
         tag = re.sub(r"[^a-z0-9._:+-]", "", tag).strip("-")
         if tag and tag not in cleaned:
             cleaned.append(tag)

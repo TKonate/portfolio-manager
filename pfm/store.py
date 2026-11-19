@@ -70,6 +70,8 @@ def write_entry(entry: Entry) -> None:
             stream.write(document)
         os.replace(temp_name, entry.path)
     except BaseException:
+        # BaseException, not Exception: a Ctrl-C during the write must clean up
+        # the temporary file too, otherwise the directory fills with .pfm-*.tmp.
         Path(temp_name).unlink(missing_ok=True)
         raise
 

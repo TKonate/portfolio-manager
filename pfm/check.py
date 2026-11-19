@@ -3,6 +3,8 @@
 The checker walks every entry and reports *errors* (something is broken and
 will produce a bad page) and *warnings* (something is incomplete but valid).
 Each finding carries a stable code so it can be filtered or tested.
+
+It only reports.  Repairs belong to ``pfm update`` or ``pfm hugo --apply``.
 """
 
 from __future__ import annotations
@@ -27,7 +29,8 @@ from .validate import validate_date
 ERROR = "error"
 WARNING = "warning"
 
-#: Statuses accepted before V3, kept valid for existing files.
+#: Dead flag from the V3 status migration: nothing reads it.  Statuses are
+#: validated against :data:`pfm.models.STATUSES`, so it is safe to delete.
 _LEGACY_OK = True
 
 _URLISH = re.compile(r"^https?://", re.IGNORECASE)
@@ -111,14 +114,20 @@ def _entry_location(entry: Entry) -> tuple[str, str, str]:
 
 
 def check_entry(config: Config, entry: Entry) -> list[Issue]:
-    """Run every per-entry check and return the findings."""
+    """Run every per-entry check and return the findings.
+
+    Codes are part of the public contract: they appear in the JSON report, in
+    ``pfm check`` output and in the web UI, so a code is never renumbered, only
+    added.  The ``E``/``W`` prefix matches the usual severity, with two
+    historical exceptions: ``E012`` also covers a lower-case directory warning,
+    and ``E014`` (duplicate title) is emitted as a warning.
+    """
     issues: list[Issue] = []
     entry_id = entry.entry_id
 
     def add(code: str, severity: str, message: str) -> None:
         issues.append(Issue(code=code, severity=severity, path=entry_id, message=message))
 
-    # -- identity -----------------------------------------------------------
     if not entry.title:
         add("E002", ERROR, "missing title in front matter")
 
@@ -131,16 +140,16 @@ def check_entry(config: Config, entry: Entry) -> list[Issue]:
             f"invalid type {entry.type!r} (expected one of {', '.join(CONTENT_FOLDERS)})",
         )
 
-    # -- date ---------------------------------------------------------------
     if not entry.date:
         add("E004", ERROR, "missing date in front matter")
     else:
         try:
             validate_date(entry.date)
-        except Exception as exc:  # ValidationError carries a readable message
+        except Exception as exc:
+            # Broad on purpose: the exception message is the finding, and one
+            # unparsable date must not abort the whole report.
             add("E005", ERROR, str(exc))
 
-    # -- status / draft -----------------------------------------------------
     if not entry.status:
         add("E006", ERROR, "missing status in front matter")
     elif entry.status not in STATUSES:
@@ -157,11 +166,9 @@ def check_entry(config: Config, entry: Entry) -> list[Issue]:
                 f"'draft' is {draft_flag!r} while status is {entry.status!r}",
             )
 
-    # -- tags ---------------------------------------------------------------
     if not entry.tags:
         add("W007", WARNING, "no tags")
 
-    # -- domain / subdomain -------------------------------------------------
     domain, subdomain, folder = _entry_location(entry)
     if not domain or not subdomain or not folder:
         add("E011", ERROR, "file is not inside content/<domain>/<subdomain>/<type>/")
@@ -200,7 +207,6 @@ def check_entry(config: Config, entry: Entry) -> list[Issue]:
                 f"subdomain {subdomain!r} is not declared for domain {domain!r}",
             )
 
-    # -- naming -------------------------------------------------------------
     if entry.path.parent.name != entry.path.parent.name.lower():
         add("E012", WARNING, "directory names should be lowercase")
 
@@ -211,7 +217,6 @@ def check_entry(config: Config, entry: Entry) -> list[Issue]:
             f"file name {entry.path.name!r} does not follow the slug convention",
         )
 
-    # -- type-specific metadata --------------------------------------------
     allowed_fields = TYPE_METADATA_FIELDS.get(entry.type, ())
     for key in allowed_fields:
         value = entry.metadata.get(key)
@@ -253,6 +258,8 @@ def run_checks(config: Config, *, entries: list[Entry] | None = None) -> CheckRe
             return report
         entries, failures = iter_entries_strict(config.portfolio_root)
         for path, message in failures:
+            # read_entry already prefixes the message with the file path; the
+            # issue carries the path in its own field, so drop the duplicate.
             prefix = f"{path}: "
             if message.startswith(prefix):
                 message = message[len(prefix) :]
@@ -293,7 +300,11 @@ def run_checks(config: Config, *, entries: list[Entry] | None = None) -> CheckRe
 
 
 def format_report(report: CheckReport, *, root: Path | None = None) -> str:
-    """Render a human readable report for the terminal."""
+    """Render a human readable report for the terminal.
+
+    ``root`` is prepended to the entry id of every line; the CLI passes the
+    portfolio root so the paths can be copied and pasted into a shell.
+    """
     lines: list[str] = []
     prefix = f"{root}/" if root else ""
     for issue in report.issues:

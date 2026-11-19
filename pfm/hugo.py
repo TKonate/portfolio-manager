@@ -34,7 +34,8 @@ def normalise_entry(path: Path, root: Path) -> tuple[Entry, bool]:
 
     * the ``draft`` boolean is recomputed from ``status``;
     * keys are reordered canonically;
-    * the body is preserved byte for byte.
+    * the body text is kept, only the blank line that separates it from the
+      front matter is normalised by :func:`pfm.store.write_entry`.
     """
     entry = read_entry(path, root)
     metadata = dict(entry.metadata)
@@ -47,6 +48,9 @@ def normalise_entry(path: Path, root: Path) -> tuple[Entry, bool]:
         changed = True
 
     if not metadata.get("date"):
+        # Hugo needs a parsable date to order pages.  The Unix epoch reads as an
+        # obvious "no date" placeholder, whereas today's date would look real
+        # and silently reorder the site on every run.
         metadata["date"] = "1970-01-01"
         changed = True
 
@@ -71,7 +75,12 @@ def normalize_portfolio(config: Config, *, dry_run: bool = False) -> list[str]:
 
 
 def hugo_checks(config: Config, *, entries: list[Entry] | None = None) -> list[Issue]:
-    """Validate that the portfolio can be rendered by Hugo."""
+    """Validate that the portfolio can be rendered by Hugo.
+
+    The codes are ``H0xx``, deliberately kept apart from the ``E``/``W`` family
+    of :mod:`pfm.check`: a portfolio can be perfectly valid for this tool and
+    still need work before Hugo accepts it.
+    """
     if entries is None:
         entries = iter_entries(config.portfolio_root)
 

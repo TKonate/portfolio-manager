@@ -81,8 +81,6 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
     # unknown method and answer 501).
     protocol_version = "HTTP/1.0"
 
-    # -- plumbing ----------------------------------------------------------
-
     @property
     def app(self) -> PortfolioHTTPServer:
         """Typed access to the server instance (config, lock, bind host)."""
@@ -93,6 +91,11 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         LOGGER.info("%s - %s", self.address_string(), format % args)
 
     def _send_bytes(self, payload: bytes, content_type: str, status: int = 200) -> None:
+        """Write a response with an explicit length, body omitted for ``HEAD``.
+
+        ``Cache-Control: no-store`` is deliberate: after an edit the browser
+        must never show a stale entry.
+        """
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
@@ -103,12 +106,18 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(payload)
 
     def _send_json(self, payload: Any, status: int = 200) -> None:
+        """Serialise ``payload`` as UTF-8 JSON."""
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self._send_bytes(body, "application/json; charset=utf-8", status=status)
 
     def _send_error_json(
         self, message: str, status: int, *, details: list[str] | None = None
     ) -> None:
+        """Send the ``{"error": {...}}`` envelope the web UI reads.
+
+        ``details`` is only present when the failure came from a validator that
+        could list one problem per field.
+        """
         payload: dict[str, Any] = {"error": {"message": message, "status": int(status)}}
         if details:
             payload["error"]["details"] = details
@@ -117,6 +126,8 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
     def _check_origin(self) -> None:
         """Reject cross-origin requests and DNS rebinding attempts."""
         host = (self.headers.get("Host") or "").strip()
+        # An IPv6 literal is bracketed ("[::1]:8765"), so the last colon is the
+        # port separator only outside brackets; a bare "[::1]" ends the host.
         hostname = host.rsplit(":", 1)[0] if host and not host.endswith("]") else host
         if host and hostname not in LOOPBACK_HOSTS and hostname != self.app.bind_host:
             raise ApiError("invalid Host header", HTTPStatus.FORBIDDEN)
@@ -153,8 +164,6 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
             raise ApiError("the JSON body must be an object", HTTPStatus.BAD_REQUEST)
         return payload
 
-    # -- HTTP verbs --------------------------------------------------------
-
     def do_GET(self) -> None:  # noqa: N802 - stdlib naming
         """Serve the UI, the API resources and nothing else."""
         self._dispatch("GET")
@@ -176,6 +185,12 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         self._dispatch("DELETE")
 
     def _dispatch(self, method: str) -> None:
+        """Route the request and map expected failures onto HTTP statuses.
+
+        The ``except`` order matters: ``EntryNotFoundError`` and
+        ``UnsafePathError`` are ``EntryError`` subclasses, so they have to be
+        caught before it or every missing entry would become a 409.
+        """
         try:
             self._check_origin()
             route = self._route(method)
@@ -240,9 +255,12 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
 
         raise ApiError(f"no route for {method} {path}", HTTPStatus.NOT_FOUND)
 
-    # -- API ---------------------------------------------------------------
-
     def _api_meta(self) -> None:
+        """Describe the vocabulary the UI needs to build its forms.
+
+        Types with their metadata fields, human labels, statuses, domains and
+        default tags, in one round trip.
+        """
         config = self.app.config
         self._send_json(
             {
@@ -263,6 +281,11 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         )
 
     def _api_entries(self, query: dict[str, list[str]]) -> None:
+        """List entries as summaries, filtered by the query string.
+
+        Filtering runs in memory: a portfolio holds a few hundred files at
+        most, so an index would buy nothing and could only drift.
+        """
         entries = iter_entries(self.app.config.portfolio_root)
 
         def first(name: str) -> str | None:
@@ -295,6 +318,12 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"count": len(entries), "entries": [entry.to_dict() for entry in entries]})
 
     def _api_entry_detail(self, entry_id: str) -> None:
+        """Return one entry: summary, raw Markdown and rendered HTML.
+
+        The raw text is read again instead of rebuilt from the parsed entry, so
+        the preview shows the file exactly as it is on disk, hand edits
+        included.
+        """
         path = resolve_entry_id(self.app.config.portfolio_root, entry_id)
         entry = read_entry(path, self.app.config.portfolio_root)
         text = path.read_text(encoding="utf-8")
@@ -308,6 +337,11 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         )
 
     def _api_create(self) -> None:
+        """Create one entry from the JSON body and answer 201.
+
+        ``type`` and ``content_type`` are accepted as synonyms so a client that
+        uses the data-model name works as well as the UI, which posts ``type``.
+        """
         payload = self._read_json()
         content_type = str(payload.get("type") or payload.get("content_type") or "")
         extras_payload = payload.get("fields") or {}
@@ -334,6 +368,12 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"entry": entry.to_dict()}, status=HTTPStatus.CREATED)
 
     def _api_update(self, entry_id: str) -> None:
+        """Apply a partial front matter update and report what changed.
+
+        Omitted keys are left untouched, a ``fields`` entry set to null removes
+        the field, and the response lists each change so the UI can show a
+        before/after without a second read.
+        """
         payload = self._read_json()
         path = resolve_entry_id(self.app.config.portfolio_root, entry_id)
 
@@ -379,21 +419,27 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         )
 
     def _api_delete(self, entry_id: str) -> None:
+        """Delete one entry and answer 204 without a body."""
         path = resolve_entry_id(self.app.config.portfolio_root, entry_id)
         with self.app.lock:
             path.unlink()
+        # Built by hand rather than through _send_json: 204 means no content,
+        # and the UI only looks at the status code here.
         self.send_response(HTTPStatus.NO_CONTENT)
         self.send_header("Content-Length", "0")
         self.end_headers()
 
     def _api_stats(self) -> None:
+        """Compute the statistics without writing anything to disk."""
         self._send_json(collect_stats(self.app.config).to_dict())
 
     def _api_write_stats(self) -> None:
+        """Compute the statistics and persist them to ``data/``."""
         destination = write_stats_json(self.app.config, collect_stats(self.app.config))
         self._send_json({"written": str(destination)})
 
     def _api_check(self) -> None:
+        """Run the checks and return the JSON report plus its text rendering."""
         report = run_checks(self.app.config)
         payload = report.to_dict()
         payload["text"] = format_report(report)
@@ -418,6 +464,7 @@ class PortfolioRequestHandler(BaseHTTPRequestHandler):
         )
 
     def _api_index(self) -> None:
+        """Regenerate the index pages; ``dry_run`` reports without writing."""
         payload = self._read_json()
         link_style = str(payload.get("link_style", "relative"))
         if link_style not in LINK_STYLES:
@@ -439,6 +486,11 @@ class PortfolioHTTPServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
     def __init__(self, address: tuple[str, int], config: Config, bind_host: str) -> None:
+        """Bind the handler to a configuration and create the write lock.
+
+        One lock is enough: writes are short and all of them mutate the same
+        tree, so serialising them costs nothing at this scale.
+        """
         super().__init__(address, PortfolioRequestHandler)
         self.config = config
         self.bind_host = bind_host
@@ -466,7 +518,11 @@ def serve(
     *,
     open_browser: bool = False,
 ) -> None:
-    """Run the web UI until interrupted."""
+    """Run the web UI until interrupted.
+
+    Binding outside loopback is possible but warns loudly: the API has no
+    authentication, so reachability equals write access to the portfolio.
+    """
     if host not in LOOPBACK_HOSTS:
         print(
             f"warning: the web UI is bound to {host}, not loopback. "
@@ -475,6 +531,8 @@ def serve(
 
     server = create_server(config, host, port)
     actual_port = server.server_address[1]
+    # A wildcard bind cannot be typed into a browser, so the printed URL stays
+    # on loopback even when the server listens on every interface.
     display_host = "127.0.0.1" if host in {"0.0.0.0", "::"} else host
     url = f"http://{display_host}:{actual_port}/"
 

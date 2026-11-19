@@ -192,6 +192,10 @@ def dumps(metadata: dict[str, Any]) -> str:
 
     The result starts and ends with ``---`` followed by a newline so it can be
     concatenated directly with a body.
+
+    A ``None`` value is skipped rather than written as ``key: null``, so a
+    hand-written null disappears the next time the file is rewritten; an empty
+    list is kept as ``key: []`` because it is a meaningful value for ``tags``.
     """
     lines = [DELIMITER]
     for key, value in metadata.items():

@@ -70,20 +70,10 @@ examples:
 """
 
 
-# ---------------------------------------------------------------------------
-# Output helpers
-# ---------------------------------------------------------------------------
-
-
 def _out(args: argparse.Namespace, message: str = "") -> None:
     """Print unless ``--quiet`` was requested."""
     if not getattr(args, "quiet", False):
         print(message)
-
-
-# ---------------------------------------------------------------------------
-# Parser
-# ---------------------------------------------------------------------------
 
 
 def _common_options() -> argparse.ArgumentParser:
@@ -139,7 +129,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", metavar="<command>")
 
-    # -- init ---------------------------------------------------------------
     init_parser = subparsers.add_parser(
         "init",
         aliases=["bootstrap"],
@@ -149,7 +138,6 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("path", nargs="?", default=".", help="portfolio root (default: .)")
     init_parser.add_argument("--force", action="store_true", help="overwrite config.json")
 
-    # -- new ----------------------------------------------------------------
     new_parser = subparsers.add_parser(
         "new",
         aliases=["n", "add", "create"],
@@ -176,7 +164,6 @@ def build_parser() -> argparse.ArgumentParser:
     new_parser.add_argument("--overwrite", action="store_true", help="replace an existing entry")
     new_parser.add_argument("--no-input", action="store_true", help="never prompt (scripting mode)")
 
-    # -- list ---------------------------------------------------------------
     list_parser = subparsers.add_parser(
         "list", aliases=["ls", "l"], parents=[common], help="list entries"
     )
@@ -186,13 +173,11 @@ def build_parser() -> argparse.ArgumentParser:
     list_parser.add_argument("--tag")
     list_parser.add_argument("--json", action="store_true", help="machine readable output")
 
-    # -- show ---------------------------------------------------------------
     show_parser = subparsers.add_parser(
         "show", aliases=["cat"], parents=[common], help="print an entry"
     )
     show_parser.add_argument("entry", help="entry id (path relative to the portfolio root)")
 
-    # -- update -------------------------------------------------------------
     update_parser = subparsers.add_parser(
         "update", aliases=["u"], parents=[common], help="update front matter of an entry"
     )
@@ -221,7 +206,6 @@ def build_parser() -> argparse.ArgumentParser:
     status_parser.add_argument("entry", help="entry id")
     status_parser.add_argument("status", choices=STATUSES)
 
-    # -- check / stats / index / hugo ---------------------------------------
     check_parser = subparsers.add_parser(
         "check", aliases=["c", "lint"], parents=[common], help="validate the portfolio"
     )
@@ -256,7 +240,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     hugo_parser.add_argument("--json", action="store_true")
 
-    # -- serve / menu -------------------------------------------------------
     serve_parser = subparsers.add_parser(
         "serve", aliases=["web", "ui"], parents=[common], help="run the local web UI"
     )
@@ -268,11 +251,6 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("menu", parents=[common], help="interactive menu (default)")
 
     return parser
-
-
-# ---------------------------------------------------------------------------
-# Commands
-# ---------------------------------------------------------------------------
 
 
 def cmd_init(args: argparse.Namespace) -> int:
@@ -288,6 +266,8 @@ def cmd_init(args: argparse.Namespace) -> int:
         return EXIT_ERROR
 
     try:
+        # A relative root keeps config.json valid when the portfolio is moved or
+        # copied, which is the normal life of a demo or a template.
         relative_root = os.path.relpath(root, config_path.parent.resolve())
     except ValueError:  # pragma: no cover - different drives on Windows
         relative_root = str(root)
@@ -338,6 +318,8 @@ def _draft_from_args(args: argparse.Namespace, content_type: str) -> Draft:
 def cmd_new(args: argparse.Namespace, config: Config) -> int:
     """Create an entry, interactively or from flags."""
     content_type = args.type_flag or args.content_type
+    # Prompt only when a human could answer: an explicit --title means the call
+    # is scripted, and a pipe or a cron job has no TTY to read from.
     interactive = not args.no_input and args.title is None and sys.stdin.isatty()
 
     if interactive:

@@ -14,10 +14,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-# ---------------------------------------------------------------------------
-# Content vocabulary
-# ---------------------------------------------------------------------------
-
 #: Content types accepted by the tool (singular, as typed on the command line).
 CONTENT_TYPES: tuple[str, ...] = ("project", "lab", "publication", "reading")
 
@@ -100,11 +96,6 @@ INDEX_FILENAME = "_index.md"
 DATA_DIRNAME = "data"
 
 
-# ---------------------------------------------------------------------------
-# Entry model
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class Entry:
     """A portfolio Markdown document loaded from disk.
@@ -122,8 +113,6 @@ class Entry:
     root: Path
     metadata: dict[str, Any] = field(default_factory=dict)
     body: str = ""
-
-    # -- convenience accessors -------------------------------------------------
 
     @property
     def title(self) -> str:

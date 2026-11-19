@@ -23,6 +23,9 @@ from pfm.errors import EntryError
 ROOT = Path(__file__).resolve().parent
 PDF = ROOT / "portfolio" / "assets" / "demo-publication.pdf"
 
+#: Fixed drafts, not user input.  Titles and dates are pinned so that running
+#: the script again rewrites nothing and regenerating the indexes produces the
+#: same bytes, which keeps the committed demo and its ``git diff`` stable.
 ENTRIES: tuple[Draft, ...] = (
     Draft(
         content_type="project",
@@ -100,6 +103,9 @@ def main() -> int:
         try:
             entry = create_entry(config, draft)
         except EntryError as exc:
+            # create_entry refuses to overwrite, so an existing entry lands
+            # here: a second run is a no-op, which is what keeps the script
+            # idempotent.
             print(f"skipped: {exc}")
             continue
         print(f"created: {entry.entry_id}")

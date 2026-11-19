@@ -42,7 +42,8 @@ def _inline(text: str) -> str:
         placeholders.append(fragment)
         return f"\x00{len(placeholders) - 1}\x00"
 
-    # Code spans first: their content must not be interpreted.
+    # Code spans are stashed first so their content is never interpreted as
+    # Markdown.  NUL is the sentinel because escaped HTML cannot contain it.
     text = _INLINE_CODE.sub(lambda m: stash(f"<code>{m.group(1)}</code>"), text)
 
     def link(match: re.Match[str]) -> str:

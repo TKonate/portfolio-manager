@@ -125,6 +125,9 @@ def update_entry(
         allowed = TYPE_METADATA_FIELDS.get(content_type, ())
         for field_name, value in fields.items():
             if field_name not in allowed:
+                # Unlike validate_extra_fields, an explicitly named field that
+                # the type does not carry is refused: on the command line it is
+                # a typo, not background noise.
                 raise ValidationError(
                     f"{field_name!r} is not a metadata field of type {content_type!r}",
                     [f"allowed fields: {', '.join(allowed) or '(none)'}"],
